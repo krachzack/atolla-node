@@ -1,0 +1,22 @@
+{
+  "name": "atolla-electron-sink",
+  "version": "1.0.0",
+  "description": "A minimal atolla client built with electron for illustrative purposes",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "atolla"
+  ],
+  "author": "krachzack <hello@phstadler.com>",
+  "license": "SEE LICENSE IN UNLICENSE",
+  "devDependencies": {
+    "electron": "~1.7.6",
+    "electron-rebuild": "^1.6.0"
+  },
+  "dependencies": {
+    "atolla": "^1.0.0",
+    "mdns": "^2.3.3"
+  }
+}
