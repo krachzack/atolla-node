@@ -1,0 +1,16 @@
+{
+  "name": "atolla",
+  "version": "1.0.0",
+  "description": "Node binding to the reference implementation of the atolla protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install": "node-gyp rebuild"
+  },
+  "author": "krachzack <hello@phstadler.com>",
+  "license": "SEE LICENSE IN UNLICENSE",
+  "gypfile": true,
+  "dependencies": {
+    "tinycolor2": "^1.4.1"
+  }
+}
