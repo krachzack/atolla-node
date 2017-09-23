@@ -16,7 +16,7 @@
     "electron-rebuild": "^1.6.0"
   },
   "dependencies": {
-    "atolla": "^1.0.0",
+    "atolla": "^1.0.2",
     "mdns": "^2.3.3"
   }
 }
