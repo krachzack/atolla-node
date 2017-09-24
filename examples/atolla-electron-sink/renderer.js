@@ -10,11 +10,12 @@ const port = (10000 + Math.random() * (50000-10000))|0
 var ad = mdns.createAdvertisement(mdns.udp('atolla'), port);
 ad.start();
 
-document.body.style.backgroundColor = 'green'
-
 sink({
   // Note name resolution blocks, this should be resolved beforehand
   port,
   lightsCount: 1,
-  painter: (jsColors) => document.body.style.backgroundColor = jsColors[0]
+  painter: function (jsColors) {
+    document.body.style.backgroundColor = jsColors[0]
+    console.log(jsColors[0], document.body.style.backgroundColor)
+  }
 })

@@ -16,7 +16,8 @@
     "electron-rebuild": "^1.6.0"
   },
   "dependencies": {
-    "atolla": "^1.0.2",
+    "atolla": "file:../..",
     "mdns": "^2.3.3"
-  }
+  },
+  "repository": "https://github.com/krachzack/atolla-node"
 }
