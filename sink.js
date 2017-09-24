@@ -25,19 +25,22 @@ module.exports = function sink (spec) {
 
     if (state === 'ATOLLA_SINK_STATE_LENT') {
       const ok = sink.get(frameRawColors)
-      console.log(frameRawColors)
-      
-      if (ok) {
-        for (let jsIdx = 0; jsIdx < frameJsColors.length; ++jsIdx) {
-          frameJsColors[jsIdx] = `#${frameRawColors[jsIdx*3].toString(16)}${frameRawColors[jsIdx*3+1].toString(16)}${frameRawColors[jsIdx*3+2].toString(16)}`;
-        }
-
-        painter(frameJsColors, frameRawColors)
-      }
+    } else if(state === 'ATOLLA_SINK_STATE_OPEN') {
+      frameRawColors.fill(0)
+      frameRawColors[1] = 255;
+    } else {
+      frameRawColors.fill(0)
+      frameRawColors[0] = 255;
     }
 
+    for (let jsIdx = 0; jsIdx < frameJsColors.length; ++jsIdx) {
+      frameJsColors[jsIdx] = `rgb(${frameRawColors[jsIdx*3]}, ${frameRawColors[jsIdx*3+1]}, ${frameRawColors[jsIdx*3+2]})`;
+    }
+
+    painter(frameJsColors, frameRawColors)
+
     lastState = state
-    setTimeout(update, updateInterval)
+    requestAnimationFrame(update)
   }
 
   return {
