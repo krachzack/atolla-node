@@ -27,6 +27,7 @@ void Sink::Init(Handle<Object> exports) {
 
   // Prototype
   NODE_SET_PROTOTYPE_METHOD(tpl, "state", State);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "errorMsg", ErrorMsg);
   NODE_SET_PROTOTYPE_METHOD(tpl, "get", Get);
 
   constructor.Reset(isolate, tpl->GetFunction());
@@ -60,7 +61,7 @@ void Sink::New(const FunctionCallbackInfo<Value>& args) {
 
 bool Sink::ParseSpecFromArgs(const FunctionCallbackInfo<Value>& args, AtollaSinkSpec& parsed) {
   Isolate* isolate = args.GetIsolate();
-  
+
   if(args.Length() < 1) {
       isolate->ThrowException(
           Exception::TypeError(
@@ -133,6 +134,17 @@ void Sink::State(const FunctionCallbackInfo<Value>& args) {
   }
 
   args.GetReturnValue().Set(String::NewFromUtf8(isolate, stateStr));
+}
+
+void Sink::ErrorMsg(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    Isolate* isolate = Isolate::GetCurrent();
+    HandleScope scope(isolate);
+
+    Sink* obj = ObjectWrap::Unwrap<Sink>(args.Holder());
+
+    const char* msg = atolla_sink_error_msg(obj->atollaSink);
+
+    args.GetReturnValue().Set(String::NewFromUtf8(isolate, msg));
 }
 
 void Sink::Get(const FunctionCallbackInfo<Value>& args) {

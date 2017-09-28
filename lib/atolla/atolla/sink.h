@@ -63,6 +63,14 @@ void atolla_sink_free(AtollaSink sink);
 AtollaSinkState atolla_sink_state(AtollaSink sink);
 
 /**
+ * Returns a reference to a nul-terminated human-readable error string
+ * describing the reason why the sink entered state ATOLLA_SINK_STATE_ERROR.
+ *
+ * If the state is not currently error, returns a NULL pointer instead.
+ */
+const char* atolla_sink_error_msg(AtollaSink sink);
+
+/**
  * Gets the current frame based on the instant in time upon calling the
  * function.
  *
