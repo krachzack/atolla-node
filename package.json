@@ -1,6 +1,6 @@
 {
   "name": "atolla",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Node binding to the reference implementation of the atolla protocol",
   "main": "index.js",
   "scripts": {
