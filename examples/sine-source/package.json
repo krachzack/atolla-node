@@ -1,0 +1,20 @@
+{
+  "name": "sine-source",
+  "version": "1.0.0",
+  "description": "Example of atolla.source, streaming a sine-like signal to a sink running at localhost:10042",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "keywords": [
+    "atolla",
+    "source"
+  ],
+  "author": "krachzack <hello@phstadler.com>",
+  "license": "SEE LICENSE IN UNLICENSE",
+  "repository": "https://github.com/krachzack/atolla-node",
+  "dependencies": {
+    "atolla": "file:../.."
+  }
+}
