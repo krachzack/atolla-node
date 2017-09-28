@@ -2,20 +2,52 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-const { sink } = require('atolla')
+const atolla = require('atolla')
 const mdns = require('mdns')
 
-const port = (10000 + Math.random() * (50000-10000))|0
+const defaultPort = 10042
+const readyColor = 'green'
+const errorColor = 'red'
+const lentColor = 'yellow'
 
-var ad = mdns.createAdvertisement(mdns.udp('atolla'), port);
-ad.start();
+let ad = false
 
-sink({
-  // Note name resolution blocks, this should be resolved beforehand
-  port,
-  lightsCount: 1,
-  painter: function (jsColors) {
-    document.body.style.backgroundColor = jsColors[0]
-    console.log(jsColors[0], document.body.style.backgroundColor)
-  }
-})
+makeSink(defaultPort)
+
+function makeSink (port, doNotTryAgain) {
+  console.log('making')
+
+  const sinkHandle = atolla.sink({
+    port,
+    lightsCount: 1,
+    painter (jsColors) {
+      document.body.style.backgroundColor = jsColors[0]
+      console.log(jsColors[0], document.body.style.backgroundColor)
+    },
+    onReady () {
+      console.log('Sink is currently open and ready for sources to connect…')
+      document.body.style.backgroundColor = readyColor
+      if (!ad) {
+        // Make service known via MDNS when first entering ready state
+        ad = mdns.createAdvertisement(mdns.udp('atolla'), port);
+        ad.start();
+      }
+    },
+    onLent () {
+      console.log('Sink is now lent to a source and will regularly call the painter with color data from the source')
+      document.body.style.backgroundColor = lentColor
+    },
+    onError (errorMsg) {
+      document.body.style.backgroundColor = errorColor
+      console.log('Sink entered unrecoveable error state:', errorMsg)
+
+      // If failed, try other port, but just do this once
+      if(!doNotTryAgain) {
+        setTimeout(function() {
+          const randomPort = (11000 + Math.random() * (50000-11000)) | 0
+          makeSink(randomPort, true)
+        }, 0);
+      }
+    }
+  })
+}
