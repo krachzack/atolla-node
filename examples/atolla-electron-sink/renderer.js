@@ -22,7 +22,6 @@ function makeSink (port, doNotTryAgain) {
     lightsCount: 1,
     painter (jsColors) {
       document.body.style.backgroundColor = jsColors[0]
-      console.log(jsColors[0], document.body.style.backgroundColor)
     },
     onReady () {
       console.log('Sink is currently open and ready for sources to connect…')
