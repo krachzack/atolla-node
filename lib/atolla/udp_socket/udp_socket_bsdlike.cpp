@@ -63,31 +63,17 @@ UdpSocketResult udp_socket_init_on_port(UdpSocket* socket, unsigned short port)
 
 static UdpSocketResult udp_socket_create_socket(UdpSocket* sock, unsigned short port)
 {
-#ifdef UDP_SOCKET_IPV4_ONLY
+#ifndef UDP_SOCKET_IPV4_ONLY
 
-    sock->socket_handle = socket(PF_INET,
-                                 SOCK_DGRAM,
-                                 IPPROTO_UDP);
-
-    if(sock->socket_handle <= 0)
-    {
-        return make_err_result(
-            UDP_SOCKET_ERR_SOCKET_CREATION_FAILED,
-            msg_socket_creation_failed
-        );
-    }
-
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    // Port 0 -> Let system select a free port
-    address.sin_port = htons((unsigned short) port);
-
-#else
-
-    sock->socket_handle = socket(PF_INET6,
-                                 SOCK_DGRAM,
-                                 IPPROTO_UDP);
+    // Assuming multi-stack is avilable and always making IPv6
+    // socket. It can talk to IPv4 and IPv6.
+    // If IPv4 addresses cause problems, or if IPv6 types are undefined on
+    // the target system, try enabling UDP_SOCKET_IPV4_ONLY
+    sock->socket_handle = socket(
+        PF_INET6,
+        SOCK_DGRAM,
+        IPPROTO_UDP
+    );
 
     if(sock->socket_handle <= 0)
     {
@@ -103,9 +89,33 @@ static UdpSocketResult udp_socket_create_socket(UdpSocket* sock, unsigned short 
     address.sin6_port = htons((unsigned short) port);
     address.sin6_addr = in6addr_any;
 
+    // Though this is the default on many systems, make sure that multi-stack
+    // is enabled, i.e. ensure IPv6 sockets can talk to IPv4
     int mode = 0;
     int setopt_err = setsockopt(sock->socket_handle, IPPROTO_IPV6, IPV6_V6ONLY, (const void*)&mode, sizeof(mode));
     assert(setopt_err == 0);
+
+#else
+
+    sock->socket_handle = socket(
+        PF_INET,
+        SOCK_DGRAM,
+        IPPROTO_UDP
+    );
+
+    if(sock->socket_handle <= 0)
+    {
+        return make_err_result(
+            UDP_SOCKET_ERR_SOCKET_CREATION_FAILED,
+            msg_socket_creation_failed
+        );
+    }
+
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    // Port 0 -> Let system select a free port
+    address.sin_port = htons((unsigned short) port);
 
 #endif
 
@@ -253,7 +263,11 @@ UdpSocketResult udp_socket_set_receiver(UdpSocket* socket, const char* hostname,
     struct addrinfo criteria;
     memset(&criteria, 0, sizeof criteria);
     // IPv6 only, map to ipv4 if necessary
+#ifndef UDP_SOCKET_IPV4_ONLY
+    criteria.ai_family = AF_INET6;
+#else
     criteria.ai_family = AF_UNSPEC;
+#endif
 
     // packet oriented rather than connection oriented
     // is preferred when looking up name
