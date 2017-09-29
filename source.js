@@ -1,7 +1,7 @@
 const { Source } = require('./build/Release/atolla')
 const toUint8ArrayColors = require('./to-uint8-colors')
 
-const defaultColor = new Uint8Array([0,0,0])
+const defaultColor = new Uint8Array([0, 0, 0])
 const defaultPainter = () => defaultColor
 const noop = () => {}
 
@@ -39,15 +39,15 @@ module.exports = function source (spec) {
                     ? spec.painter
                     : defaultPainter
 
-  let onStateChange = ('onStateChange' in spec && typeof spec.onStateChange == 'function')
+  let onStateChange = ('onStateChange' in spec && typeof spec.onStateChange === 'function')
                           ? spec.onStateChange
                           : noop
 
-  let onReady = ('onReady' in spec && typeof spec.onReady == 'function')
+  let onReady = ('onReady' in spec && typeof spec.onReady === 'function')
                           ? spec.onReady
                           : noop
 
-  let onError = ('onError' in spec && typeof spec.onError == 'function')
+  let onError = ('onError' in spec && typeof spec.onError === 'function')
                           ? spec.onError
                           : noop
 
@@ -135,8 +135,7 @@ module.exports = function source (spec) {
     }
   }
 
-  function stream ()
-  {
+  function stream () {
     for (let readyCount = source.putReadyCount(); readyCount > 0; readyCount = source.putReadyCount()) {
       putFrame()
     }
@@ -147,7 +146,7 @@ module.exports = function source (spec) {
   function putFrame () {
     let painted = toUint8ArrayColors(painter(time)) || defaultColor
 
-    if(source.put(painted)) {
+    if (source.put(painted)) {
       time += frameDurationSeconds
     }
   }
