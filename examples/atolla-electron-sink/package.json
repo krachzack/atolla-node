@@ -19,5 +19,8 @@
     "atolla": "^1.0.6",
     "mdns": "^2.3.3"
   },
-  "repository": "https://github.com/krachzack/atolla-node"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krachzack/atolla-node"
+  }
 }

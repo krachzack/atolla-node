@@ -13,7 +13,10 @@
   ],
   "author": "krachzack <hello@phstadler.com>",
   "license": "SEE LICENSE IN UNLICENSE",
-  "repository": "https://github.com/krachzack/atolla-node",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krachzack/atolla-node"
+  },
   "dependencies": {
     "atolla": "file:../.."
   }

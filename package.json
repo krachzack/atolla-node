@@ -9,7 +9,10 @@
   },
   "author": "krachzack <hello@phstadler.com>",
   "license": "SEE LICENSE IN UNLICENSE",
-  "repository": "https://github.com/krachzack/atolla-node",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krachzack/atolla-node"
+  },
   "gypfile": true,
   "dependencies": {
     "tinycolor2": "^1.4.1"
