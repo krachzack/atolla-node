@@ -253,11 +253,8 @@ UdpSocketResult udp_socket_set_receiver(UdpSocket* socket, const char* hostname,
     struct addrinfo criteria;
     memset(&criteria, 0, sizeof criteria);
     // IPv6 only, map to ipv4 if necessary
-#ifndef UDP_SOCKET_IPV4_ONLY
-    criteria.ai_family = AF_INET6;
-#else
     criteria.ai_family = AF_UNSPEC;
-#endif
+
     // packet oriented rather than connection oriented
     // is preferred when looking up name
     criteria.ai_socktype = SOCK_DGRAM;
