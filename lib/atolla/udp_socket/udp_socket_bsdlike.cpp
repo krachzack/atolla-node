@@ -63,7 +63,9 @@ UdpSocketResult udp_socket_init_on_port(UdpSocket* socket, unsigned short port)
 
 static UdpSocketResult udp_socket_create_socket(UdpSocket* sock, unsigned short port)
 {
-    sock->socket_handle = socket(AF_INET,
+#ifdef UDP_SOCKET_IPV4_ONLY
+
+    sock->socket_handle = socket(PF_INET,
                                  SOCK_DGRAM,
                                  IPPROTO_UDP);
 
@@ -81,9 +83,35 @@ static UdpSocketResult udp_socket_create_socket(UdpSocket* sock, unsigned short 
     // Port 0 -> Let system select a free port
     address.sin_port = htons((unsigned short) port);
 
+#else
+
+    sock->socket_handle = socket(PF_INET6,
+                                 SOCK_DGRAM,
+                                 IPPROTO_UDP);
+
+    if(sock->socket_handle <= 0)
+    {
+        return make_err_result(
+            UDP_SOCKET_ERR_SOCKET_CREATION_FAILED,
+            msg_socket_creation_failed
+        );
+    }
+
+    struct sockaddr_in6 address;
+    address.sin6_family = AF_INET6;
+    // Port 0 -> Let system select a free port
+    address.sin6_port = htons((unsigned short) port);
+    address.sin6_addr = in6addr_any;
+
+    int mode = 0;
+    int setopt_err = setsockopt(sock->socket_handle, IPPROTO_IPV6, IPV6_V6ONLY, (const void*)&mode, sizeof(mode));
+    assert(setopt_err == 0);
+
+#endif
+
     int bind_err = bind(sock->socket_handle,
                         (const struct sockaddr*) &address,
-                        sizeof(struct sockaddr_in));
+                        sizeof(address));
 
     if (bind_err < 0)
     {
@@ -112,7 +140,7 @@ static UdpSocketResult udp_socket_set_socket_nonblocking(UdpSocket* socket)
         }
 
     #else
-    
+
         int nonBlocking = 1;
         if(fcntl(socket->socket_handle,
                     F_SETFL,
@@ -224,8 +252,12 @@ UdpSocketResult udp_socket_set_receiver(UdpSocket* socket, const char* hostname,
 
     struct addrinfo criteria;
     memset(&criteria, 0, sizeof criteria);
-    // any address family, e.g. IPv4 and IPv6 are both ok
+    // IPv6 only, map to ipv4 if necessary
+#ifndef UDP_SOCKET_IPV4_ONLY
+    criteria.ai_family = AF_INET6;
+#else
     criteria.ai_family = AF_UNSPEC;
+#endif
     // packet oriented rather than connection oriented
     // is preferred when looking up name
     criteria.ai_socktype = SOCK_DGRAM;
