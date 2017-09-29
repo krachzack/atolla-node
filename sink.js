@@ -1,41 +1,46 @@
 const { Sink } = require('./build/Release/atolla')
 
 const noop = () => {}
+const stateUpdateIntervalMs = 20
+// If requestAnimationFrame is not available, the painter will be scheduled in this interval
+const frameGetIntervalMs = 15
 
 module.exports = function sink (spec) {
-  const sink = new Sink(spec)
-  let painter = ('painter' in spec && typeof spec.painter === 'function') ? spec.painter : defaultPainter
+  let sink = new Sink(spec)
+  let painter = ('painter' in spec && typeof spec.painter === 'function') ? spec.painter : noop
   let lastState
-  const onStateChange = ('onStateChange' in spec && typeof spec.onStateChange == 'function')
+  const onStateChange = ('onStateChange' in spec && typeof spec.onStateChange === 'function')
                              ? spec.onStateChange
                              : noop
 
-  const onReady = ('onReady' in spec && typeof spec.onReady == 'function')
+  const onReady = ('onReady' in spec && typeof spec.onReady === 'function')
                              ? spec.onReady
                              : noop
 
-  const onLent = ('onLent' in spec && typeof spec.onLent == 'function')
+  const onLent = ('onLent' in spec && typeof spec.onLent === 'function')
                              ? spec.onLent
                              : noop
 
-  const onError = ('onError' in spec && typeof spec.onError == 'function')
+  const onError = ('onError' in spec && typeof spec.onError === 'function')
                              ? spec.onError
                              : noop
 
   const frameRawColors = new Uint8Array(spec.lightsCount * 3)
   const frameJsColors = []
-  for(let i = 0; i < spec.lightsCount; ++i) {
+  for (let i = 0; i < spec.lightsCount; ++i) {
     frameJsColors.push('black')
   }
 
-  update()
+  updateState()
+  setInterval(updateState, stateUpdateIntervalMs)
+  setInterval(updateFrame, frameGetIntervalMs)
 
   return {
     get painter () {
       return painter
     },
     set painter (newPainter) {
-      painter = (typeof newPainter === 'function') ? newPainter : defaultPainter
+      painter = (typeof newPainter === 'function') ? newPainter : noop
     },
     get state () {
       return lastState
@@ -43,7 +48,11 @@ module.exports = function sink (spec) {
     close () { sink = undefined }
   }
 
-  function update () {
+  /**
+   * Receives frames from the network and tells the connected source
+   * that the connection is still open.
+   */
+  function updateState () {
     if (!sink) { return } // Sink was closed
 
     const state = sink.state()
@@ -52,18 +61,33 @@ module.exports = function sink (spec) {
       handleStateChange(state, lastState)
     }
 
-    if (state === 'ATOLLA_SINK_STATE_LENT') {
+    lastState = state
+  }
+
+  /**
+   * Requests the current frame from the sink and calls the painter
+   * with the new frame.
+   *
+   * If available, calling the painter through the indirection of
+   * requestAnimationFrame.
+   */
+  function updateFrame () {
+    if (!sink) { return } // Sink was closed
+
+    if (lastState === 'ATOLLA_SINK_STATE_LENT') {
       const ok = sink.get(frameRawColors)
       if (ok) {
         for (let jsIdx = 0; jsIdx < frameJsColors.length; ++jsIdx) {
-          frameJsColors[jsIdx] = `rgb(${frameRawColors[jsIdx*3]}, ${frameRawColors[jsIdx*3+1]}, ${frameRawColors[jsIdx*3+2]})`
+          frameJsColors[jsIdx] = `rgb(${frameRawColors[jsIdx * 3]}, ${frameRawColors[jsIdx * 3 + 1]}, ${frameRawColors[jsIdx * 3 + 2]})`
         }
-        painter(frameJsColors, frameRawColors)
+
+        if (typeof requestAnimationFrame === 'undefined') {
+          painter(frameJsColors, frameRawColors)
+        } else {
+          requestAnimationFrame(() => painter(frameJsColors, frameRawColors))
+        }
       }
     }
-
-    lastState = state
-    requestAnimationFrame(update)
   }
 
   function handleStateChange (newState, oldState) {
