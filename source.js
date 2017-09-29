@@ -35,19 +35,19 @@ module.exports = function source (spec) {
 
   const frameDurationSeconds = spec.frameDurationMs / 1000
 
-  let painter = ('painter' in spec && typeof spec.painter === 'function')
+  let painter = (typeof spec.painter === 'function')
                     ? spec.painter
                     : defaultPainter
 
-  let onStateChange = ('onStateChange' in spec && typeof spec.onStateChange === 'function')
+  let onStateChange = (typeof spec.onStateChange === 'function')
                           ? spec.onStateChange
                           : noop
 
-  let onReady = ('onReady' in spec && typeof spec.onReady === 'function')
+  let onReady = (typeof spec.onReady === 'function')
                           ? spec.onReady
                           : noop
 
-  let onError = ('onError' in spec && typeof spec.onError === 'function')
+  let onError = (typeof spec.onError === 'function')
                           ? spec.onError
                           : noop
 

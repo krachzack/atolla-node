@@ -7,21 +7,21 @@ const frameGetIntervalMs = 15
 
 module.exports = function sink (spec) {
   let sink = new Sink(spec)
-  let painter = ('painter' in spec && typeof spec.painter === 'function') ? spec.painter : noop
+  let painter = (typeof spec.painter === 'function') ? spec.painter : noop
   let lastState
-  const onStateChange = ('onStateChange' in spec && typeof spec.onStateChange === 'function')
+  const onStateChange = (typeof spec.onStateChange === 'function')
                              ? spec.onStateChange
                              : noop
 
-  const onReady = ('onReady' in spec && typeof spec.onReady === 'function')
+  const onReady = (typeof spec.onReady === 'function')
                              ? spec.onReady
                              : noop
 
-  const onLent = ('onLent' in spec && typeof spec.onLent === 'function')
+  const onLent = (typeof spec.onLent === 'function')
                              ? spec.onLent
                              : noop
 
-  const onError = ('onError' in spec && typeof spec.onError === 'function')
+  const onError = (typeof spec.onError === 'function')
                              ? spec.onError
                              : noop
 
